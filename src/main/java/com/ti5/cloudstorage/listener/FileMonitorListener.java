@@ -1,6 +1,6 @@
 package com.ti5.cloudstorage.listener;
 
-import com.ti5.cloudstorage.service.FileService;
+import com.ti5.cloudstorage.service.BackupService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.devtools.filewatch.ChangedFile;
@@ -15,14 +15,14 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class FileMonitorListener implements FileChangeListener {
 
-  private final FileService fileService;
+  private final BackupService backupService;
 
   @Override
   public void onChange(Set<ChangedFiles> changeSet) {
     for (ChangedFiles cfiles : changeSet) {
       for (ChangedFile cfile : cfiles.getFiles()) {
         log.info("{}: File ({}) changed", cfile.getType(), cfile.getFile().getPath());
-        fileService.processFile(cfile);
+        backupService.sync(cfile);
       }
     }
   }

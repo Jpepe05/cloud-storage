@@ -1,11 +1,11 @@
 package com.ti5.cloudstorage.service;
 
 import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.ti5.cloudstorage.cloud.CloudStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.devtools.filewatch.ChangedFile;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -19,17 +19,6 @@ import java.util.stream.Collectors;
 public class FileService {
 
   private final CloudStore cloudStore;
-
-  public void processFile(ChangedFile changedFile) {
-    var fileType = changedFile.getType();
-    var file = changedFile.getFile();
-
-    switch (fileType) {
-      case ADD -> uploadFile(file);
-      case MODIFY -> updateFile(file);
-      case DELETE -> deleteFile(file);
-    }
-  }
 
   public void uploadFiles(Collection<File> files) {
     files.forEach(this::uploadFile);
@@ -49,6 +38,10 @@ public class FileService {
 
   public void deleteFile(File file) {
     cloudStore.deleteFile(file);
+  }
+
+  public S3ObjectInputStream getFileContent(File file) {
+    return cloudStore.getFile(file).getObjectContent();
   }
 
   public Set<File> getAllFiles() {
