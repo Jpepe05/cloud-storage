@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -49,10 +51,12 @@ public class ButtonPressedEventHandler {
   }
 
   private void folderSelectionButtonPressedEvent(ButtonPressedEvent buttonPressedEvent) {
-    log.info("Folder Selection Button pressed: " + buttonPressedEvent);
+    File fileSelected = buttonPressedEvent.getFolderSelected();
+    log.info("Folder {} selected", fileSelected.getPath());
   }
 
   private void bucketSelectionButtonPressedEvent(ButtonPressedEvent buttonPressedEvent) {
-    log.info("Bucket Selection Button pressed: " + buttonPressedEvent);
+    String bucketName = buttonPressedEvent.getBucketName();
+    log.info("Bucket {} selected", bucketName);
   }
 }

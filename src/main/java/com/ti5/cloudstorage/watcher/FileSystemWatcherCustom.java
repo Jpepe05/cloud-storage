@@ -5,6 +5,7 @@ import org.springframework.boot.devtools.filewatch.FileSystemWatcher;
 
 import java.lang.reflect.Field;
 import java.time.Duration;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
@@ -33,5 +34,18 @@ public class FileSystemWatcherCustom extends FileSystemWatcher {
   public void stop() {
     super.stop();
     log.info("File System Watcher stopped");
+  }
+
+  public void changeFolder() {
+    this.stop();
+    try {
+      Field field = getClass().getSuperclass().getDeclaredField("directories");
+      field.setAccessible(true);
+      Map directories = (Map) field.get(this);
+      // directories.put() //TODO
+      field.setAccessible(false);
+    } catch (NoSuchFieldException | IllegalAccessException e) {
+      log.error("Error setting remainingScans to -1", e);
+    }
   }
 }
