@@ -4,7 +4,6 @@ import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.devtools.filewatch.ChangedFile;
 import org.springframework.stereotype.Service;
 
@@ -23,11 +22,35 @@ public class BackupService {
   private final Set<File> watchedDirectories;
   private final FileService fileService;
 
-  @Value("${backup.delete-on-sync:false}")
-  private boolean deleteOnSync;
+  public void sync() {
 
-  public void syncOnStartup() {
+    AllFiles files = getAllFiles();
+    Set<File> filesOnlyLocally = files.filesOnlyLocally();
+    Set<File> filesOnlyOnAws = files.filesOnlyOnAws();
 
+    if (!filesOnlyLocally.isEmpty() || !filesOnlyOnAws.isEmpty()) {
+      log.info("Syncing files on AWS on thread {}", Thread.currentThread().getId());
+      uploadFiles(filesOnlyLocally);
+      deleteFiles(filesOnlyOnAws);
+    } else {
+      log.info("No files to sync");
+    }
+  }
+
+  public void download() {
+
+    AllFiles files = getAllFiles();
+    Set<File> filesOnlyOnAws = files.filesOnlyOnAws();
+
+    if (!filesOnlyOnAws.isEmpty()) {
+      log.info("Downloading files on AWS on thread {}", Thread.currentThread().getId());
+      downloadFiles(filesOnlyOnAws);
+    } else {
+      log.info("No files to download");
+    }
+  }
+
+  private AllFiles getAllFiles() {
     Set<File> awsFiles = fileService.getAllFiles();
     Set<File> localFiles = getLocalFiles();
 
@@ -39,15 +62,10 @@ public class BackupService {
 
     Set<File> filesOnlyOnAws = new HashSet<>(awsFiles);
     filesOnlyOnAws.removeAll(localFiles);
-
-    uploadFiles(filesOnlyLocally);
-
-    if (Boolean.TRUE.equals(deleteOnSync)) {
-      deleteFiles(filesOnlyOnAws);
-    } else {
-      downloadFiles(filesOnlyOnAws);
-    }
+    return new AllFiles(filesOnlyLocally, filesOnlyOnAws);
   }
+
+  private record AllFiles(Set<File> filesOnlyLocally, Set<File> filesOnlyOnAws) {}
 
   private void uploadFiles(Set<File> filesToUpload) {
     if (!filesToUpload.isEmpty()) {

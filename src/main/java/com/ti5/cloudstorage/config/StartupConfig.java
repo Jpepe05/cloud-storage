@@ -1,6 +1,5 @@
 package com.ti5.cloudstorage.config;
 
-import com.ti5.cloudstorage.service.BackupService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -16,15 +15,12 @@ import java.util.Set;
 @Slf4j
 public class StartupConfig {
 
-  private final BackupService backupService;
   private final FileSystemWatcher fileSystemWatcher;
   private final Set<File> watchedDirectories;
 
   @EventListener(ApplicationReadyEvent.class)
-  public void syncFilesAndStartFileWatcher() {
-    log.info("Syncing files");
-    backupService.syncOnStartup();
-    log.info("Finished syncing files, starting file watcher");
+  public void startFileWatcher() {
+    log.info("Starting file watcher");
     fileSystemWatcher.start();
     log.info("Started fileSystemWatcher on directories {}", watchedDirectories);
   }

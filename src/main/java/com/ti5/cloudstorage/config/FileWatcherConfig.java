@@ -1,6 +1,7 @@
 package com.ti5.cloudstorage.config;
 
 import com.ti5.cloudstorage.listener.FileMonitorListener;
+import com.ti5.cloudstorage.watcher.FileSystemWatcherCustom;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.devtools.filewatch.FileSystemWatcher;
 import org.springframework.context.annotation.Bean;
@@ -17,7 +18,7 @@ public class FileWatcherConfig {
   public FileSystemWatcher fileSystemWatcher(
       FileMonitorListener fileMonitorListener, Path rootDirectory) {
     FileSystemWatcher fileSystemWatcher =
-        new FileSystemWatcher(false, Duration.ofMillis(2000L), Duration.ofMillis(1000L));
+        new FileSystemWatcherCustom(false, Duration.ofMillis(2000L), Duration.ofMillis(1000L));
 
     fileSystemWatcher.addSourceDirectory(rootDirectory.toFile());
     fileSystemWatcher.addListener(fileMonitorListener);
