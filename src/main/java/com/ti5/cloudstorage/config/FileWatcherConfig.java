@@ -16,11 +16,11 @@ public class FileWatcherConfig {
 
   @Bean(destroyMethod = "stop")
   public FileSystemWatcher fileSystemWatcher(
-      FileMonitorListener fileMonitorListener, Path rootDirectory) {
+      FileMonitorListener fileMonitorListener, UserConfigs userConfigs) {
     FileSystemWatcher fileSystemWatcher =
         new FileSystemWatcherCustom(false, Duration.ofMillis(2000L), Duration.ofMillis(1000L));
 
-    fileSystemWatcher.addSourceDirectory(rootDirectory.toFile());
+    fileSystemWatcher.addSourceDirectory(userConfigs.getRootDirectoryPath().toFile());
     fileSystemWatcher.addListener(fileMonitorListener);
 
     return fileSystemWatcher;

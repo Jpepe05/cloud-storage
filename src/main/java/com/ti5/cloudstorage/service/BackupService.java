@@ -1,6 +1,7 @@
 package com.ti5.cloudstorage.service;
 
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.ti5.cloudstorage.config.UserConfigs;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BackupService {
 
-  private final Set<File> watchedDirectories;
+  private final UserConfigs userConfigs;
   private final FileService fileService;
 
   public void sync() {
@@ -97,7 +98,7 @@ public class BackupService {
   }
 
   private Set<File> getLocalFiles() {
-    return watchedDirectories.stream()
+    return userConfigs.getWatchedDirectories().stream()
         .map(File::listFiles)
         .filter(Objects::nonNull)
         .flatMap(Arrays::stream)

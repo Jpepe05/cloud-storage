@@ -3,6 +3,7 @@ package com.ti5.cloudstorage.watcher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.devtools.filewatch.FileSystemWatcher;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.time.Duration;
 import java.util.Map;
@@ -36,13 +37,19 @@ public class FileSystemWatcherCustom extends FileSystemWatcher {
     log.info("File System Watcher stopped");
   }
 
-  public void changeFolder() {
+  public void changeFolder(File directory) {
     this.stop();
+    removeOldDirectory();
+    super.addSourceDirectory(directory);
+    this.start();
+  }
+
+  private void removeOldDirectory() {
     try {
       Field field = getClass().getSuperclass().getDeclaredField("directories");
       field.setAccessible(true);
       Map directories = (Map) field.get(this);
-      // directories.put() //TODO
+      directories.remove(directories.keySet().iterator().next());
       field.setAccessible(false);
     } catch (NoSuchFieldException | IllegalAccessException e) {
       log.error("Error setting remainingScans to -1", e);

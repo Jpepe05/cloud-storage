@@ -16,12 +16,12 @@ import java.util.Set;
 public class StartupConfig {
 
   private final FileSystemWatcher fileSystemWatcher;
-  private final Set<File> watchedDirectories;
+  private final UserConfigs userConfigs;
 
   @EventListener(ApplicationReadyEvent.class)
   public void startFileWatcher() {
     log.info("Starting file watcher");
     fileSystemWatcher.start();
-    log.info("Started fileSystemWatcher on directories {}", watchedDirectories);
+    log.info("Started fileSystemWatcher on directories {}", userConfigs.getWatchedDirectories());
   }
 }

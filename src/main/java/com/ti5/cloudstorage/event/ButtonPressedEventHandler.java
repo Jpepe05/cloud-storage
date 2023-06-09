@@ -1,6 +1,8 @@
 package com.ti5.cloudstorage.event;
 
+import com.ti5.cloudstorage.config.UserConfigs;
 import com.ti5.cloudstorage.constant.Constants;
+import com.ti5.cloudstorage.ui.DirectorySelectionButton;
 import com.ti5.cloudstorage.ui.DownloadButton;
 import com.ti5.cloudstorage.ui.SyncButton;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,8 @@ public class ButtonPressedEventHandler {
 
   private final DownloadButton downloadButton;
   private final SyncButton syncButton;
+  private final DirectorySelectionButton directorySelectionButton;
+  private final UserConfigs userConfigs;
 
   @EventListener
   public void handleButtonPressed(ButtonPressedEvent buttonPressedEvent) {
@@ -52,11 +56,18 @@ public class ButtonPressedEventHandler {
 
   private void folderSelectionButtonPressedEvent(ButtonPressedEvent buttonPressedEvent) {
     File fileSelected = buttonPressedEvent.getFolderSelected();
-    log.info("Folder {} selected", fileSelected.getPath());
+    if(fileSelected == null) {
+      return;
+    }
+    userConfigs.setRootDirectoryPath(fileSelected.getPath());
+    directorySelectionButton.reset();
+    directorySelectionButton.start();
+    log.info("Folder {} selected on Thread {}", fileSelected.getPath(), Thread.currentThread().getId());
   }
 
   private void bucketSelectionButtonPressedEvent(ButtonPressedEvent buttonPressedEvent) {
     String bucketName = buttonPressedEvent.getBucketName();
+    userConfigs.setAwsBucketName(bucketName);
     log.info("Bucket {} selected", bucketName);
   }
 }
